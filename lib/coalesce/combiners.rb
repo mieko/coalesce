@@ -6,7 +6,6 @@ module Coalesce
     end
 
     def array(values, unique: false, singular: false)
-      values = Array(values)
       values = values.uniq if unique
       if singular && values.size == 1
         values.first
@@ -23,7 +22,7 @@ module Coalesce
       len = parts.max_by(&:size).size
 
       (0...len).map do |seg|
-        to_combine = parts.map { |p| p[seg] }.reject(&:nil?)
+        to_combine = parts.map { |p| p[seg] }.compact
         to_combine.sort.uniq.join('_')
       end.join('.')
     end
@@ -38,7 +37,6 @@ module Coalesce
                          other: :first,
                          combiner: :array,
                          combiner_options: {})
-      only = Array(only) unless only.nil?
       return values if values.size < 2
 
       result = {}
