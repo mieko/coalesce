@@ -5,6 +5,7 @@ module Coalesce
   class Batch
     attr_reader :objects
     attr_reader :locks
+    attr_reader :combined_attributes
 
     extend Forwardable
     def_delegators :@objects, :[], :size, :first, :last, :each, :empty?
@@ -14,11 +15,13 @@ module Coalesce
     def initialize(prototype)
       @objects = [prototype]
       @locks = []
+      @combined_attributes = {}
     end
 
     def prototype
       @objects.first
     end
+
   end
 
   class Batch2

@@ -2,20 +2,22 @@ module Coalesce
   class Grouper
     attr_accessor :enabled
     attr_reader   :items
+    attr_reader   :rules
+    attr_reader   :combiners
 
     def initialize(enabled: true)
       @enabled   = enabled
       @rules     = []
-      @configure = -> (batch) {}
+      @combiners = []
       @lines     = nil
     end
 
     def rule(*args, &proc)
-      rules.push(Rule.new(*args, &proc))
+      @rules.push(Rule.new(*args, &proc))
     end
 
-    def configure_batch(&proc)
-      @configure = proc
+    def combine(*args, **kw)
+      @combiners += Combiner.build_list(*args, **kw)
     end
 
     def each(items, &proc)
@@ -42,10 +44,6 @@ module Coalesce
       items.send(items.respond_to?(:find_each) ? :find_each : :each, &over_each)
 
       batch.results.each {|r| yield r } unless batch.nil?
-    end
-
-    def rule(*args, **kwargs, &predicate)
-      @rules << Rule.new(*args, **kwargs, &predicate)
     end
 
   end

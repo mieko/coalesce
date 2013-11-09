@@ -62,29 +62,27 @@ module Coalesce
       end
     end
 
-    def lock_names(*rule_names)
+    def lock_to(*rule_names)
       @locks += Array(rule_names)
     end
 
-    def unlock_names(*rule_names)
+    def release(*rule_names)
       @locks = @locks - Array(rule_names)
     end
 
-    def combine(*attr_names, with: :array, **kw)
-      Array(attr_names).each do |attr|
-        @combiners.push([attr, with, kw])
-      end
+    def combine(*attr_names, **kw)
+      @combiners += Combiner.build_list(*attr_names, **kw)
     end
   end
 
 
   class Rule
-    attr_reader :name
+    attr_reader :name, :predicates, :locks, :combiners
 
     def initialize(name, &block)
       dsl = RuleDSL.new(&block)
       @name = name
-      @predicates, @locks = dsl.predicates, dsl.locks
+      @predicates, @locks, @combiners = dsl.predicates, dsl.locks, dsl.combiners
     end
 
     def matches?(batch, candidate)

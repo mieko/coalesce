@@ -1,5 +1,5 @@
 require 'coalesce/version'
-require 'coalesce/combiners'
+require 'coalesce/combiner'
 require 'coalesce/rule'
 require 'coalesce/batch'
 require 'coalesce/grouper'

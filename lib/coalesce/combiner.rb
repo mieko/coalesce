@@ -1,11 +1,23 @@
 module Coalesce
-  class Combiners
+  class Combiner
+    attr_reader :attribute, :with, :options
+
+    def initialize(attribute, with: nil, options: {})
+      @attribute, @with, @options = attribute, with, options
+    end
+
+    def self.build_list(*attr_names, with: :array, **kw)
+      attr_names.map do |attr_name|
+        new(attr_name, with: with, options: kw)
+      end
+    end
+
     # No-op
-    def none(values)
+    def self.none(values)
       values
     end
 
-    def array(values, unique: false, singular: false)
+    def self.array(values, unique: false, singular: false)
       values = values.uniq if unique
       if singular && values.size == 1
         values.first
@@ -17,7 +29,7 @@ module Coalesce
     # This does the clever
     #  ['ticket.accept', 'ticket.close'] -> 'ticket.accept_close'
     # thing that makes PublicActivity happy
-    def smart_key(values)
+    def self.smart_key(values)
       parts = values.map { |v| v.split '.' }
       len = parts.max_by(&:size).size
 
@@ -27,16 +39,16 @@ module Coalesce
       end.join('.')
     end
 
-    def hash_merge(values, method: :reverse_merge)
+    def self.hash_merge(values, method: :reverse_merge)
       values.inject({}, method)
     end
 
-    def hash_merge_array(values,
-                         only: nil,
-                         except: nil,
-                         other: :first,
-                         combiner: :array,
-                         combiner_options: {})
+    def self.hash_merge_array(values,
+                              only: nil,
+                              except: nil,
+                              other: :first,
+                              combiner: :array,
+                              combiner_options: {})
       return values if values.size < 2
 
       result = {}
@@ -60,7 +72,7 @@ module Coalesce
     end
 
     private
-    def only_except(k, only, except, predicate_value: nil)
+    def self.only_except(k, only, except, predicate_value: nil)
       if only && except
         fail ArgumentError, 'only pass one of :only or :except'
       end
