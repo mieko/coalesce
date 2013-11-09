@@ -59,6 +59,11 @@ module Coalesce
       values.last
     end
 
+    def self.literal(values, value: :_!)
+      fail ArgumentError, ":value is required" if value == :_!
+      value.respond_to?(:dup) ? value.dup : value
+    end
+
     def self.nth(values, index: nil)
       fail ArgumentError, ":index argument required" if index.nil?
       values[index]
