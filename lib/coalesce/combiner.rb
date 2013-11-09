@@ -12,6 +12,14 @@ module Coalesce
       end
     end
 
+    def call(values)
+      if self.class.method(@with).parameters.size == 1
+        self.class.send(@with, values)
+      else
+        self.class.send(@with, values, **@options)
+      end
+    end
+
     # No-op
     def self.none(values)
       values

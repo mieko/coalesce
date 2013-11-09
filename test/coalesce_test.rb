@@ -98,6 +98,19 @@ class CoaleseTest < MiniTest::Unit::TestCase
     assert_equal ['Tucson', 'Trollface'], result[:pet]
   end
 
+  def test_combiners_literal
+    assert_equal 'x', Combiner.literal(['I', 'am', 'awesome'], value: 'x')
+    assert_equal [], Combiner.literal(['I', 'am', 'awesome'], value: [])
+  end
+
+  def test_combiner_object
+    c = Combiner.new(:name, with: :array, options: {unique: true})
+    assert_equal ['Mike', 'Tucson'], c.call(['Mike', 'Tucson', 'Tucson'])
+
+    c = Combiner.new(:key, with: :smart_key)
+    assert_equal 'ticket.close_create', c.call(['ticket.create', 'ticket.close'])
+  end
+
   def test_rule_dsl
     rule = Rule.new 'ticket.close_accept' do
       key  'ticket.accept', 'ticket.close'
