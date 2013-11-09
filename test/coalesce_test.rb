@@ -33,6 +33,12 @@ class CoaleseTest < MiniTest::Unit::TestCase
                  Combiner.smart_key(['ticket.create', 'comment.create'])
   end
 
+  def test_combiners_position
+    assert_equal 'Mike',   Combiner.first(['Mike', 'Tucson'])
+    assert_equal 'Tucson', Combiner.last(['Mike', 'Tucson'])
+    assert_equal 'Kayla',  Combiner.nth(['Mike', 'Kayla', 'Tucson'], index: 1)
+  end
+
   def test_combiners_array
     assert_equal ['Mike', 'Tucson'],
                  Combiner.array(['Mike', 'Tucson'])

@@ -43,6 +43,19 @@ module Coalesce
       values.inject({}, method)
     end
 
+    def self.first(values)
+      values.first
+    end
+
+    def self.last(values)
+      values.last
+    end
+
+    def self.nth(values, index: nil)
+      fail ArgumentError, ":index argument required" if index.nil?
+      values[index]
+    end
+
     def self.hash_merge_array(values,
                               only: nil,
                               except: nil,
