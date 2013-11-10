@@ -55,7 +55,7 @@ module Coalesce
       end
 
       object.define_singleton_method(:combined?) do |k=nil|
-        k ? combined.has_key?(k) : !combined.empty?
+        k ? combined.key?(k) : !combined.empty?
       end
 
       combined.each do |k, v|
