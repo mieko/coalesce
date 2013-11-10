@@ -19,7 +19,7 @@ And then execute:
 
 ```ruby
 
-Coalesce::Grouper(PublicActivity::Activities.all.limit(100)) do
+Coalesce::Grouper.new(PublicActivity::Activities.all.limit(100)) do
   rule :accept_and_close do
     key 'ticket.accept', 'ticket.close'
 
