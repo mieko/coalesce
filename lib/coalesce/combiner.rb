@@ -8,7 +8,7 @@ module Coalesce
 
     def self.build_list(*attr_names, with: :array, **kw)
       attr_names.map do |attr_name|
-        new(attr_name, with: with, options: kw)
+        new(attr_name, with: with, **kw)
       end
     end
 
