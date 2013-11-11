@@ -94,7 +94,6 @@ module Coalesce
         end
       end
       Hash[kv]
-
     end
 
     private

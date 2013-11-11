@@ -170,6 +170,8 @@ class CoaleseTest < MiniTest::Unit::TestCase
 
     result = b.to_standin
 
+    assert_equal %i(key ticket owner).sort, result.combined_attributes.keys.sort
+
     assert result.combined?
     assert result.combined?(:key)
     assert result.combined?(:ticket)
@@ -180,8 +182,6 @@ class CoaleseTest < MiniTest::Unit::TestCase
     assert_equal 1, result.ticket
     assert_equal ['Mike', 'Mike'], result.owner
     assert_equal epoch, result.created_at
-
-    puts result.inspect
   end
 
 end
