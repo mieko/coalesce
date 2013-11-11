@@ -9,7 +9,10 @@ require 'coalesce'
 
 
 class Activity < OpenStruct
-
+  def inspect
+    s = each_pair.map {|k,v| "#{k}=#{send(k).inspect}"}.join ' '
+    "\#<#{self.class.name} #{s}>"
+  end
 end
 
 class CoaleseTest < MiniTest::Unit::TestCase
