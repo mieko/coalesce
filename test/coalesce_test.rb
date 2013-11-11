@@ -104,7 +104,7 @@ class CoaleseTest < MiniTest::Unit::TestCase
   end
 
   def test_combiner_object
-    c = Combiner.new(:name, with: :array, options: {unique: true})
+    c = Combiner.new(:name, with: :array, unique: true)
     assert_equal ['Mike', 'Tucson'], c.call(['Mike', 'Tucson', 'Tucson'])
 
     c = Combiner.new(:key, with: :smart_key)

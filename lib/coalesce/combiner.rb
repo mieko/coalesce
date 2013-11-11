@@ -2,7 +2,7 @@ module Coalesce
   class Combiner
     attr_reader :attribute, :with, :options
 
-    def initialize(attribute, with: nil, options: {})
+    def initialize(attribute, with: :array, **options)
       @attribute, @with, @options = attribute, with, options
     end
 
