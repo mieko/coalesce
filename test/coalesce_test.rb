@@ -158,4 +158,30 @@ class CoaleseTest < MiniTest::Unit::TestCase
     assert_equal false, rule.matches?(batch, activities[4])
   end
 
+  def test_batch_object
+    ticket_create  = a!(key: 'ticket.close',   ticket: 1, owner: 'Mike', created_at: epoch)
+    ticket_comment = a!(key: 'ticket.comment', ticket: 1, owner: 'Mike', created_at: epoch + 1.minute)
+
+    b = Batch.new(ticket_create)
+    b.add_object(ticket_comment)
+    b.add_combiner(Combiner.new(:key, with: :smart_key))
+    b.add_combiner(Combiner.new(:ticket, unique: true, singular: true))
+    b.add_combiner(Combiner.new(:owner))
+
+    result = b.to_standin
+
+    assert result.combined?
+    assert result.combined?(:key)
+    assert result.combined?(:ticket)
+    assert result.combined?(:owner)
+    refute result.combined?(:created_at)
+
+    assert_equal 'ticket.close_comment', result.key
+    assert_equal 1, result.ticket
+    assert_equal ['Mike', 'Mike'], result.owner
+    assert_equal epoch, result.created_at
+
+    puts result.inspect
+  end
+
 end
