@@ -20,7 +20,7 @@ module Coalesce
     def attr_in(attr_name, *values)
       predicate! do |batch, candidate|
         candidate.respond_to?(attr_name) &&
-          Array(values).include?(candidate.send(attr_name))
+          values.include?(candidate.send(attr_name))
       end
     end
 
@@ -30,16 +30,16 @@ module Coalesce
 
     def batch_key(*key_values)
       predicate! do |batch, candidate|
-        Array(key_values).include?(batch.prototype.key)
+        key_values.include?(batch.prototype.key)
       end
     end
 
     def same(*keys, as: :all)
-      unless [:any, :all, :first, :last].include?(as)
+      unless %i(any all first last).include?(as)
         fail ArgumentError, ':as must be one of :any, :all, :first, or :last'
       end
 
-      Array(keys).each do |key|
+      keys.each do |key|
         predicate! do |batch, candidate|
           pred = ->(obj) { candidate.send(key) == obj.send(key) }
           if [:any, :all].include?(as)
@@ -63,11 +63,11 @@ module Coalesce
     end
 
     def lock_to(*rule_names)
-      @locks += Array(rule_names)
+      @locks += rule_names
     end
 
     def release(*rule_names)
-      @locks = @locks - Array(rule_names)
+      @locks = @locks - rule_names
     end
 
     def combine(*attr_names, **kw)
