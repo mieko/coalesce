@@ -98,12 +98,8 @@ module Coalesce
     end
 
     def call(batch, candidate)
-      if matches?(batch, candidate)
-        apply(batch, candidate)
-        true
-      else
-        false
-      end
+      apply(batch, candidate) and return true if matches?(batch, candidate)
+      false
     end
   end
 end
