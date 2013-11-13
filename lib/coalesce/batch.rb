@@ -6,7 +6,6 @@ module Coalesce
     attr_reader :objects
     attr_reader :combiners
     attr_reader :locks
-    attr_reader :combined_attributes
 
     extend Forwardable
     def_delegators :@objects, :[], :size, :first, :last, :each, :empty?
