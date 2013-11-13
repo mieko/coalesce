@@ -52,7 +52,7 @@ module Coalesce
       end
 
       object.define_singleton_method(:combined_attributes) do
-        return combined
+        combined
       end
 
       object.define_singleton_method(:combined?) do |k=nil|
