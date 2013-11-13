@@ -30,6 +30,8 @@ module Coalesce
       @combiners.push(combiner)
     end
 
+    # This makes a duplicate of the prototype, then starts replacing attributes
+    # with the result of the combiners.
     def to_standin
       combined = {}
       @combiners.each do |combiner|
