@@ -5,11 +5,13 @@ module Coalesce
     attr_reader   :rules
     attr_reader   :combiners
 
-    def initialize(enabled: true)
+    def initialize(enabled: true, &proc)
       @enabled   = enabled
       @rules     = []
       @combiners = []
       @lines     = nil
+
+      instance_exec(&proc) if proc
     end
 
     def rule(*args, &proc)
@@ -21,30 +23,38 @@ module Coalesce
     end
 
     def each(items, &proc)
-      return enum_for(:each, items) unless block_given?
-      items.each(&proc) and return if !@enabled
+      return enum_for(__method__, items) unless block_given?
+      return items.each(&proc) if !@enabled
 
       batch = nil
-      returned = 0
 
-      over_each = ->(candidate) do
-        batch = Batch.new(candidate, @rules) and next if batch.nil?
-        @configure.(batch)
+      iterator = items.each
+      candidate = iterator.next
 
-        next if batch.combine!(candidate)
-        batch.results.each {|r| yield r }
+      loop do
+        catch (:process_next) do
+          if batch.nil?
+            batch = Batch.new(candidate)
+            candidate = iterator.next
+            throw :process_next
+          end
 
-        returned += 1
-        break if @lines && returned == @lines - 1
+          rules.each do |rule|
+            if rule.matches?(batch, candidate)
+              batch.add_object(candidate)
+              rule.combiners.each { |c| batch.add_combiner(c) }
+              candidate = iterator.next
+              throw :process_next
+            end
+          end
 
-        batch = Batch.new(candidate, @rules)
-        @configure.(batch)
+          yield batch.to_standin
+          batch = nil
+        end
       end
-      # use find_each if possible, each otherwise
-      items.send(items.respond_to?(:find_each) ? :find_each : :each, &over_each)
 
-      batch.results.each {|r| yield r } unless batch.nil?
+      yield batch.to_standin unless batch.nil?
+
     end
-
   end
 end

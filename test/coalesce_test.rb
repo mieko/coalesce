@@ -184,4 +184,34 @@ class CoaleseTest < MiniTest::Unit::TestCase
     assert_equal epoch, result.created_at
   end
 
+
+  def test_grouper_simple
+    activities = [
+      a!(id: 1, key: 'ticket.create', owner: 'Mike Owens'),
+      a!(id: 1, key: 'ticket.notify', owner: 'Mike Owens', extra: {recipient: 'Joe'}),
+      a!(id: 1, key: 'ticket.notify', owner: 'Mike Owens', extra: {recipient: 'Matt'})
+    ]
+
+    g = Grouper.new(enabled: true) do
+      rule 'ticket.create_notify' do
+        key 'ticket.notify'
+        same :id, :key, :owner
+
+        combine :id,    unique: true, singular: true
+        combine :owner, unique: true, singular: true
+        combine :extra, with: :hash_merge_array
+      end
+    end
+
+    result = g.each(activities).to_a
+
+    assert_equal 2, result.size
+    assert_equal false, result[0].combined?
+    assert_equal true,  result[1].combined?
+
+    assert_equal 1, result[1].id
+    assert_equal 'Mike Owens', result[1].owner
+    assert_equal ['Joe', 'Matt'], result[1].extra[:recipient]
+  end
+
 end

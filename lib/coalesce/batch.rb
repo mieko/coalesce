@@ -27,7 +27,7 @@ module Coalesce
     end
 
     def add_combiner(combiner)
-      @combiners.push(combiner)
+      @combiners.push(combiner) unless @combiners.include?(combiner)
     end
 
     # This makes a duplicate of the prototype, then starts replacing attributes

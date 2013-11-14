@@ -90,16 +90,8 @@ module Coalesce
       @predicates.all? {|p| p.(batch, candidate)}
     end
 
-    def apply(batch, candidate)
+    def apply!(batch, candidate)
       batch.locks += @locks unless @locks.empty?
-      @combiners.each do |combiner|
-        combiner.call(batch, candidate)
-      end
-    end
-
-    def call(batch, candidate)
-      apply(batch, candidate) and return true if matches?(batch, candidate)
-      false
     end
   end
 end
