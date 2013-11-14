@@ -6,6 +6,7 @@ module Coalesce
     attr_reader :objects
     attr_reader :combiners
     attr_reader :locks
+    attr_reader :rules_matched
 
     extend Forwardable
     def_delegators :@objects, :[], :size, :first, :last, :each, :empty?
@@ -13,9 +14,10 @@ module Coalesce
     include Enumerable
 
     def initialize(prototype)
-      @objects   = [prototype]
-      @combiners = []
-      @locks     = []
+      @objects       = [prototype]
+      @combiners     = []
+      @locks         = []
+      @rules_matched = []
     end
 
     def prototype

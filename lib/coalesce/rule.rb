@@ -91,7 +91,15 @@ module Coalesce
     end
 
     def apply!(batch, candidate)
-      batch.locks += @locks unless @locks.empty?
+      unless batch.rules_matched.include?(self)
+        batch.rules_matched.push(self)
+
+        batch.locks += @locks unless @locks.empty?
+        combiners.each { |c| batch.add_combiner(c) }
+      end
+
+      batch.add_object(candidate)
     end
+
   end
 end

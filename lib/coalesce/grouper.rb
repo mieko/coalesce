@@ -41,8 +41,7 @@ module Coalesce
 
           rules.each do |rule|
             if rule.matches?(batch, candidate)
-              batch.add_object(candidate)
-              rule.combiners.each { |c| batch.add_combiner(c) }
+              rule.apply!(batch, candidate)
               candidate = iterator.next
               throw :process_next
             end

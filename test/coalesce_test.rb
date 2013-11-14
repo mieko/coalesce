@@ -205,7 +205,7 @@ class CoaleseTest < MiniTest::Unit::TestCase
 
     result = g.each(activities).to_a
 
-    assert_equal 2, result.size
+    assert_equal 2,     result.size
     assert_equal false, result[0].combined?
     assert_equal true,  result[1].combined?
 
