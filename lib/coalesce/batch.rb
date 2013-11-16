@@ -32,6 +32,14 @@ module Coalesce
       @combiners.push(combiner) unless @combiners.include?(combiner)
     end
 
+    def lock(name)
+      @locks.push(name) unless @locks.include?(name)
+    end
+
+    def unlock(name)
+      @locks.delete(name)
+    end
+
     # This makes a duplicate of the prototype, then starts replacing attributes
     # with the result of the combiners.
     def to_standin

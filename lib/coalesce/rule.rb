@@ -1,13 +1,16 @@
 module Coalesce
 
   class RuleDSL
+    attr_reader :name
     attr_reader :predicates
-    attr_reader :locks
+    attr_reader :locks, :unlocks
     attr_reader :combiners
 
-    def initialize(&block)
+    def initialize(name, &block)
+      @name       = name
       @predicates = []
       @locks      = []
+      @unlocks    = []
       @combiners  = []
       instance_exec(&block)
     end
@@ -24,8 +27,12 @@ module Coalesce
       end
     end
 
-    def key(*key_values)
+    def key(*key_values, as: :all)
       attr_in(:key, *key_values)
+      same(:key, as: as)
+    end
+
+    def suspend
     end
 
     def batch_key(*key_values)
@@ -41,7 +48,10 @@ module Coalesce
 
       keys.each do |key|
         predicate! do |batch, candidate|
-          pred = ->(obj) { candidate.send(key) == obj.send(key) }
+          pred = ->(obj) do
+            obj.respond_to?(key) && candidate.respond_to?(key) &&
+            candidate.send(key) == obj.send(key)
+          end
           if [:any, :all].include?(as)
             batch.objects.send("#{as}?", &pred)
           else
@@ -62,12 +72,12 @@ module Coalesce
       end
     end
 
-    def lock_to(*rule_names)
-      @locks += rule_names
+    def lock(*rule_names)
+      @locks += rule_names.empty? ? [name] : rule_names
     end
 
-    def release(*rule_names)
-      @locks = @locks - rule_names
+    def unlock(*rule_names)
+      @unlocks = @unlocks - rule_names
     end
 
     def combine(*attr_names, **kw)
@@ -77,16 +87,20 @@ module Coalesce
 
 
   class Rule
-    attr_reader :name, :predicates, :locks, :combiners
+    attr_reader :name, :predicates, :locks, :unlocks, :combiners
 
     def initialize(name, &block)
-      dsl = RuleDSL.new(&block)
-      @name = name
-      @predicates, @locks, @combiners = dsl.predicates, dsl.locks, dsl.combiners
+      dsl = RuleDSL.new(name, &block)
+
+      @name, @predicates, @locks, @unlocks, @combiners =
+        dsl.name, dsl.predicates, dsl.locks, dsl.unlocks, dsl.combiners
     end
 
     def matches?(batch, candidate)
-      return false if !batch.locks.empty? && !batch.locks.include?(name)
+      if !batch.locks.empty?
+        return false unless batch.locks.include?(name)
+      end
+
       @predicates.all? {|p| p.(batch, candidate)}
     end
 
@@ -94,7 +108,8 @@ module Coalesce
       unless batch.rules_matched.include?(self)
         batch.rules_matched.push(self)
 
-        batch.locks += @locks unless @locks.empty?
+        locks.each     { |l| batch.lock(l)         }
+        unlocks.each   { |l| batch.unlock(l)       }
         combiners.each { |c| batch.add_combiner(c) }
       end
 

@@ -1,7 +1,6 @@
 module Coalesce
   class Grouper
     attr_accessor :enabled
-    attr_reader   :items
     attr_reader   :rules
     attr_reader   :combiners
 
@@ -14,8 +13,12 @@ module Coalesce
       instance_exec(&proc) if proc
     end
 
-    def rule(*args, &proc)
-      @rules.push(Rule.new(*args, &proc))
+    def rule(name, *args, &proc)
+      if @rules.any? {|r| r.name == name}
+        fail ArgumentError, "duplicate rule name: #{name.inspect}"
+      end
+
+      @rules.push(Rule.new(name, *args, &proc))
     end
 
     def combine(*args, **kw)
