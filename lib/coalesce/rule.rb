@@ -81,6 +81,12 @@ module Coalesce
     end
 
     def combine(*attr_names, **kw)
+      intersection = @combiners.map(&:attribute) & attr_names
+
+      unless intersection.empty?
+        fail ArgumentError, "duplicate attributes #{intersection.inspect}"
+      end
+
       @combiners += Combiner.build_list(*attr_names, **kw)
     end
   end

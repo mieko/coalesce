@@ -21,10 +21,6 @@ module Coalesce
       @rules.push(Rule.new(name, *args, &proc))
     end
 
-    def combine(*args, **kw)
-      @combiners += Combiner.build_list(*args, **kw)
-    end
-
     def each(items, &proc)
       return enum_for(__method__, items) unless block_given?
       return items.each(&proc) if !@enabled
