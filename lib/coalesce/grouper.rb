@@ -2,12 +2,10 @@ module Coalesce
   class Grouper
     attr_accessor :enabled
     attr_reader   :rules
-    attr_reader   :combiners
 
     def initialize(enabled: true, &proc)
       @enabled   = enabled
       @rules     = []
-      @combiners = []
       @lines     = nil
 
       instance_exec(&proc) if proc
