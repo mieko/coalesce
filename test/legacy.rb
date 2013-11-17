@@ -5,8 +5,8 @@
 # on its behaviour, I needed to ensure that coalesce CAN express the rules, and
 # generate the same results as ActivityGrouper
 #
-# When all these tests pass, ActivityGrouper, legacy-test.csv, and
-# legacy_compat_test can be removed from source control.
+# When all these tests pass, this file, legacy_test.rb, and legacy.csv can be
+# removed from source control.
 
 module Legacy
 
