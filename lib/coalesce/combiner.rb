@@ -9,7 +9,6 @@ module Coalesce
 
       # default to the block if given, or :array
       @with = with || block || :array
-
       @attribute, @options = attribute, options
     end
 
@@ -20,7 +19,7 @@ module Coalesce
     end
 
     def call(values)
-      callable = with.respond_to?(:call) ? with : self.class.method(@with)
+      callable = with.respond_to?(:call) ? with : self.class.method(with)
 
       if callable.parameters.size == 1
         callable.call(values)
