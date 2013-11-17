@@ -62,8 +62,7 @@ module Coalesce
       values.last
     end
 
-    def self.literal(values, value: :_!)
-      fail ArgumentError, ":value is required" if value == :_!
+    def self.literal(values, value: (fail ArgumentError, ":value required"))
       value.respond_to?(:dup) ? value.dup : value
     end
 
