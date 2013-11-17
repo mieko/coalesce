@@ -28,11 +28,6 @@ module Coalesce
       end
     end
 
-    # No-op
-    def self.none(values)
-      values
-    end
-
     def self.array(values, unique: false, singular: false)
       values = values.uniq if unique
       if singular && values.size == 1
