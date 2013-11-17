@@ -80,14 +80,14 @@ module Coalesce
       @unlocks = @unlocks - rule_names
     end
 
-    def combine(*attr_names, **kw)
+    def combine(*attr_names, **kw, &block)
       intersection = @combiners.map(&:attribute) & attr_names
 
       unless intersection.empty?
         fail ArgumentError, "duplicate attributes #{intersection.inspect}"
       end
 
-      @combiners += Combiner.build_list(*attr_names, **kw)
+      @combiners += Combiner.build_list(*attr_names, **kw, &block)
     end
   end
 

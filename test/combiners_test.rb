@@ -93,5 +93,15 @@ class CombinersTest < MiniTest::Unit::TestCase
     assert_equal 'ticket.close_create', c.call(['ticket.create', 'ticket.close'])
   end
 
+  def test_combiner_block
+
+    c = Combiner.new(:testing) do |values|
+      values.reverse
+    end
+
+    assert_equal ['B', 'A'], c.call(['A',  'B'])
+
+  end
+
 
 end

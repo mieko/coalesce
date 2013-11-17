@@ -2,21 +2,30 @@ module Coalesce
   class Combiner
     attr_reader :attribute, :with, :options
 
-    def initialize(attribute, with: :array, **options)
-      @attribute, @with, @options = attribute, with, options
+    def initialize(attribute, with: nil, **options, &block)
+      if with && block
+        fail ArgumentError, "cannot provide both :with and block"
+      end
+
+      # default to the block if given, or :array
+      @with = with || block || :array
+
+      @attribute, @options = attribute, options
     end
 
-    def self.build_list(*attr_names, with: :array, **kw)
+    def self.build_list(*attr_names, **kw, &block)
       attr_names.map do |attr_name|
-        new(attr_name, with: with, **kw)
+        new(attr_name, **kw, &block)
       end
     end
 
     def call(values)
-      if self.class.method(@with).parameters.size == 1
-        self.class.send(@with, values)
+      callable = with.respond_to?(:call) ? with : self.class.method(@with)
+
+      if callable.parameters.size == 1
+        callable.call(values)
       else
-        self.class.send(@with, values, **@options)
+        callable.call(values, **@options)
       end
     end
 

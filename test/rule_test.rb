@@ -58,4 +58,18 @@ class RuleTest < MiniTest::Unit::TestCase
     assert_equal false, rule.matches?(batch, activities[4])
   end
 
+  def test_rule_dsl_combine
+    rule = Rule.new :xx do
+      combine :name do |values|
+        values.reverse
+      end
+    end
+
+    assert_equal 1, rule.combiners.size
+    assert_equal :name, rule.combiners.first.attribute
+
+    result = rule.combiners.first.call(%w(Mike Tucson Leah))
+    assert_equal %w(Leah Tucson Mike), result
+  end
+
 end
