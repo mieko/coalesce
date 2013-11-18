@@ -20,12 +20,7 @@ module Coalesce
 
     def call(values)
       callable = with.respond_to?(:call) ? with : self.class.method(with)
-
-      if callable.parameters.size == 1
-        callable.call(values)
-      else
-        callable.call(values, **@options)
-      end
+      options.empty? ? callable.call(values) : callable.call(values, **options)
     end
 
     # The simplest combiner: adds all values to an array.
