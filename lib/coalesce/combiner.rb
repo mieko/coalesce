@@ -50,33 +50,47 @@ module Coalesce
       end.join('.')
     end
 
+    # To be used on an array of hashes.  Merges them left-to-right, using
+    # :method, which defaults to :reverse_merge
     def self.hash_merge(values, method: :reverse_merge)
       values.inject({}, method)
     end
 
+    # Selects the first element of the array
     def self.first(values)
       values.first
     end
 
+    # Selects the last element of the array
     def self.last(values)
       values.last
     end
 
-    def self.literal(values, value: (fail ArgumentError, ":value required"))
-      value.respond_to?(:dup) ? value.dup : value
-    end
-
+    # Selects the nth value of the array, given by :index
     def self.nth(values, index: nil)
       fail ArgumentError, ":index argument required" if index.nil?
       values[index]
     end
 
+    # Returns a literal value, ignoring the array.  Specify the value to be
+    # return with :value
+    def self.literal(values, value: (fail ArgumentError, ":value required"))
+      value.respond_to?(:dup) ? value.dup : value
+    end
+
+    # Merges an array of hashes into arrays for each value.  By default, all
+    # keys are processed, but these can be limited with :only and :except.
+    #
+    # Keys that are processed are combined with :combiner, passing
+    # :combiner_options.  Keys that are NOT processed will be processed with
+    # :other, passing :other_options.
     def self.hash_merge_array(values,
                               only: nil,
                               except: nil,
-                              other: :first,
                               combiner: :array,
-                              combiner_options: {})
+                              combiner_options: {},
+                              other: :first,
+                              other_options: {})
       return values if values.size < 2
 
       result = {}
@@ -90,15 +104,21 @@ module Coalesce
 
       kv = result.map do |k, v|
         if only_except(k, only, except)
-          [k, send(combiner, v, **combiner_options)]
+          [k, send_ignoring_kw(combiner, v, **combiner_options)]
         else
-          [k, v.send(other)]
+          [k, send_ignoring_kw(other, v, **other_options)]
         end
       end
       Hash[kv]
     end
 
     private
+    # Same as send(method, values, **kw), except in the case kw is
+    # empty, they are not sent to avoid ArgumentError
+    def self.send_ignoring_kw(method, values, **kw)
+      kw.empty? ? send(method, values) : send(method, values, **kw)
+    end
+
     def self.only_except(k, only, except, predicate_value: nil)
       if only && except
         fail ArgumentError, 'only pass one of :only or :except'
