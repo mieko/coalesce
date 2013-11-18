@@ -28,6 +28,11 @@ module Coalesce
       end
     end
 
+    # The simplest combiner: adds all values to an array.
+    # if :unique is true, it removes duplicates.
+    # if :singular is true, AND the result has only one item,
+    #   it will return the one item, not a one-element array containing
+    #   the item.
     def self.array(values, unique: false, singular: false)
       values = values.uniq if unique
       if singular && values.size == 1
