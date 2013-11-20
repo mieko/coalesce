@@ -56,10 +56,11 @@ module Coalesce
       end
 
       object = prototype
-      batch = self
 
-      object.define_singleton_method(:batch) do
-        batch
+      tap do |batch|
+        object.define_singleton_method(:batch) do
+          batch
+        end
       end
 
       object.define_singleton_method(:combined_attributes) do
