@@ -1,3 +1,4 @@
+require 'delegate'
 require 'minitest/unit'
 require 'minitest/pride'
 require 'minitest/autorun'
@@ -150,5 +151,39 @@ class CoaleseTest < MiniTest::Unit::TestCase
     assert_equal 2, results.first.user
   end
 
+  # Simulates ActiveRecord's find_each, which, in released versions,
+  # does not return an Enumerator when no block is specified.
+  class StupidArray < SimpleDelegator
+    def initialize(obj)
+      super
+    end
+
+    def find_each
+      each do |v|
+        yield v
+      end
+    end
+  end
+
+
+  def test_grouper_find_each_patch
+    activities = StupidArray.new [
+      a!(id: 1, value: 'Mike'),
+      a!(id: 1, value: 'Tucson')
+    ]
+
+    g = Grouper.new do
+      rule :combine_by_id do
+        same    :id
+        combine :value
+        combine :id, unique: true, singular: true
+      end
+    end
+
+    result = g.each(activities).to_a
+    assert_equal 1, result.size
+    assert_equal 1, result.first.id
+    assert_equal ['Mike', 'Tucson'], result.first.value
+  end
 
 end

@@ -22,17 +22,21 @@ module Coalesce
     def each(items, &proc)
       return enum_for(__method__, items) unless block_given?
 
-      # We try to use find_each vs. each for Enumerables that support it.
-      each_method = items.respond_to?(:find_each) ? :find_each : :each
-
-      # If we're not enabled, just delegate to the collection
-      if !enabled
-        return items.send(each_method, &proc)
+      # Until very recently, ActiveRecord's find_each didn't return an
+      # Enumerator.  This should work for new and old releases, and any other
+      # object that implements similar behaviour.
+      #
+      # https://github.com/rails/rails/pull/10992
+      iterator = if items.respond_to?(:find_each)
+        items.enum_for(:find_each)
+      else
+        items.each
       end
 
-      batch = nil
+      # If we're not enabled, just delegate to the collection
+      return iterator.each(&proc) if !enabled
 
-      iterator = items.send(each_method)
+      batch = nil
       candidate = iterator.next
 
       loop do
