@@ -20,12 +20,16 @@ module Coalesce
     end
 
     def each(items, &proc)
+      # We try to use find_each vs. each for Enumerables that support it.
+
+      each_method = items.respond_to?(:find_each) ? :find_each : :each
+
       return enum_for(__method__, items) unless block_given?
-      return items.each(&proc) if !@enabled
+      return items.send(each_method, &proc) if !@enabled
 
       batch = nil
 
-      iterator = items.each
+      iterator = items.send(each_method)
       candidate = iterator.next
 
       loop do
