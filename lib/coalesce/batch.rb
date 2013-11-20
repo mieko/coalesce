@@ -69,11 +69,15 @@ module Coalesce
         k ? combined.key?(k) : !combined.empty?
       end
 
+      had_created_at = try(:created_at)
+
       combined.each do |k, v|
         object.define_singleton_method(k) do
           v
         end
       end
+
+      fail "lost attribute" if had_created_at != try(:created_at)
 
       object
     end
