@@ -103,4 +103,25 @@ class CoaleseTest < MiniTest::Unit::TestCase
     assert_equal 2, result.size
   end
 
+  def test_grouper_disable
+    activities = [
+      a!(id: 1, name: 'Bob'),
+      a!(id: 1, name: 'Bobberson')
+    ]
+
+    g = Grouper.new(enabled: false) do
+      rule :combine_by_id do
+        same :id
+        combine :id
+      end
+    end
+
+    results = g.each(activities).to_a
+    assert_equal 2, results.size
+
+    g.enabled = true
+    results = g.each(activities).to_a
+    assert_equal 1, results.size
+  end
+
 end
