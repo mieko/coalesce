@@ -153,7 +153,7 @@ module Coalesce
         batch.rules_matched.push(self)
 
         locks.each     { |l| batch.lock(l)         }
-        unlocks.each   { |l| batch.unlock(l)       }
+        unlocks.each   { |u| batch.unlock(u)       }
         combiners.each { |c| batch.add_combiner(c) }
       end
 

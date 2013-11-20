@@ -4,7 +4,7 @@ module Coalesce
 
     def initialize(attribute, with: nil, **options, &block)
       if with && block
-        fail ArgumentError, "cannot provide both :with and block"
+        fail ArgumentError, 'cannot provide both :with and block'
       end
 
       # default to the block if given, or :array
@@ -68,13 +68,13 @@ module Coalesce
 
     # Selects the nth value of the array, given by :index
     def self.nth(values, index: nil)
-      fail ArgumentError, ":index argument required" if index.nil?
+      fail ArgumentError, ':index argument required' if index.nil?
       values[index]
     end
 
     # Returns a literal value, ignoring the array.  Specify the value to be
     # return with :value
-    def self.literal(values, value: (fail ArgumentError, ":value required"))
+    def self.literal(values, value: (fail ArgumentError, ':value required'))
       value.respond_to?(:dup) ? value.dup : value
     end
 
@@ -114,7 +114,7 @@ module Coalesce
 
     private
     # Same as send(method, values, **kw), except in the case kw is
-    # empty, they are not sent to avoid ArgumentError
+    # empty, they are not sent to method avoid ArgumentError
     def self.send_ignoring_kw(method, values, **kw)
       kw.empty? ? send(method, values) : send(method, values, **kw)
     end
