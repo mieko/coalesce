@@ -94,13 +94,16 @@ class CombinersTest < MiniTest::Unit::TestCase
   end
 
   def test_combiner_block
-
     c = Combiner.new(:testing) do |values|
       values.reverse
     end
 
     assert_equal ['B', 'A'], c.call(['A',  'B'])
+  end
 
+  def test_combiner_compact
+    c = Combiner.new(:xx, compact: true, with: :array)
+    assert_equal %w(a b c), c.call([nil, 'a', 'b', nil, 'c', nil])
   end
 
 
