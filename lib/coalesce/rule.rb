@@ -1,10 +1,10 @@
 module Coalesce
 
   class RuleDSL
-    attr_reader :name
-    attr_reader :predicates
-    attr_reader :locks, :unlocks
-    attr_reader :combiners
+    attr_reader   :name
+    attr_reader   :predicates
+    attr_reader   :locks, :unlocks
+    attr_reader   :combiners
 
     def initialize(name, &block)
       @name       = name
@@ -42,7 +42,46 @@ module Coalesce
       same(:key, as: as)
     end
 
-    def suspend
+    def chain(attr, *values, all: true)
+      operators = [:+, :*, :'?']
+
+      # Build components as [literal, operator] pairs to build the regexp
+      # in the predicate.
+      components = []
+      it = values.each
+      loop do
+        v  = it.next
+
+        operator = begin
+          operators.include?(it.peek) ? it.next : nil
+        rescue StopIteration
+          nil
+        end
+
+        components.push([v, operator])
+      end
+
+      predicate! do |batch, candidate|
+
+      # Build a Regexp that will match up until this point.
+        parts = components.map.with_index do |component, i|
+          v, op = component
+          s = '(' + Regexp.escape(v.to_s) + ' )' + (op ? op.to_s : '')
+          if i > batch.objects.size
+            s = "(?:#{s})?"
+          end
+          s
+        end
+        re = /\A#{parts.join}/
+
+        # Build the string representing the batch and the candidate.
+        strval = (batch.objects + [candidate]).map do |object|
+          object.send(attr)
+        end.join(' ') + ' '
+
+        !! re.match(strval)
+      end
+
     end
 
     def batch_key(*key_values)

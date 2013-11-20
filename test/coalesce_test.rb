@@ -124,4 +124,31 @@ class CoaleseTest < MiniTest::Unit::TestCase
     assert_equal 1, results.size
   end
 
+  def test_grouper_chain
+    activities = [
+      a!(key: 'ticket.accept',  id: 1, user: 2),
+      a!(key: 'ticket.comment', id: 1, user: 2),
+      a!(key: 'ticket.close',   id: 1, user: 2)
+    ]
+
+    g = Grouper.new do
+      rule :accept_and_close do
+        same  :id, :user
+        chain :key, 'ticket.accept', 'ticket.comment', :'*', 'ticket.close'
+
+        lock
+        combine :key, with: :smart_key
+        combine :id,   singular: true, unique: true
+        combine :user, singular: true, unique: true
+      end
+    end
+
+    results = g.each(activities).to_a
+    assert_equal 1, results.size
+    assert_equal 'ticket.accept_close_comment', results.first.key
+    assert_equal 1, results.first.id
+    assert_equal 2, results.first.user
+  end
+
+
 end
