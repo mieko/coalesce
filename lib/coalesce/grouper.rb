@@ -36,21 +36,31 @@ module Coalesce
       # If we're not enabled, just delegate to the collection
       return iterator.each(&proc) if !enabled
 
+      buffer = []
+      next_candidate = -> do
+        return buffer.pop unless buffer.empty?
+        return iterator.next
+      end
+
+      rollback = -> (batch) do
+        buffer = buffer + batch.objects.reverse
+      end
+
       batch = nil
-      candidate = iterator.next
+      candidate = next_candidate.call
 
       loop do
         catch (:process_next) do
           if batch.nil?
             batch = Batch.new(candidate)
-            candidate = iterator.next
+            candidate = next_candidate.call
             throw :process_next
           end
 
           rules.each do |rule|
             if rule.matches?(batch, candidate)
               rule.apply!(batch, candidate)
-              candidate = iterator.next
+              candidate = next_candidate.call
               throw :process_next
             end
           end
