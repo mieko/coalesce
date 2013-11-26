@@ -6,7 +6,6 @@ module Coalesce
     def initialize(enabled: true, &proc)
       @enabled   = enabled
       @rules     = []
-      @lines     = nil
 
       instance_exec(&proc) if proc
     end
