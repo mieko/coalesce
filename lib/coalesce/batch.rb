@@ -55,25 +55,30 @@ module Coalesce
         combined[combiner.attribute] = combiner.call(aggregate)
       end
 
+      # We'd like to dup or clone the prototype object to not modify the
+      # original, but some ORMs, ActiveRecord included, override dup to
+      # clear id, created_at timestamps, etc, making the returned object
+      # less like the original than we'd like.
       object = prototype
 
+      # Give us access to self as batch in the context of the new methods
       tap do |batch|
         object.define_singleton_method(:batch) do
           batch
         end
-      end
 
-      object.define_singleton_method(:combined_attributes) do
-        combined
-      end
+        object.define_singleton_method(:combined_attributes) do
+          combined
+        end
 
-      object.define_singleton_method(:combined?) do |k=nil|
-        k ? combined.key?(k) : !combined.empty?
-      end
+        object.define_singleton_method(:combined?) do |k=nil|
+          k ? combined.key?(k) : !combined.empty?
+        end
 
-      combined.each do |k, v|
-        object.define_singleton_method(k) do
-          v
+        combined.each do |k, v|
+          object.define_singleton_method(k) do
+            v
+          end
         end
       end
 
