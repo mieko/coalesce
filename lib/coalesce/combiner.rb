@@ -52,8 +52,8 @@ module Coalesce
     end
 
     # To be used on an array of hashes.  Merges them left-to-right, using
-    # :method, which defaults to :reverse_merge
-    def self.hash_merge(values, method: :reverse_merge)
+    # :method, which defaults to :merge
+    def self.hash_merge(values, method: :merge)
       values.inject({}, method)
     end
 

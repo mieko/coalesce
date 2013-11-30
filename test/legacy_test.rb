@@ -12,7 +12,6 @@ require 'minitest/pride'
 require 'minitest/autorun'
 
 require 'csv'
-require 'active_support/core_ext'
 
 require_relative './test_models'
 require_relative './legacy'

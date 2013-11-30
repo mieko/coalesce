@@ -3,8 +3,6 @@ require 'minitest/unit'
 require 'minitest/pride'
 require 'minitest/autorun'
 
-require 'active_support/core_ext'
-
 require_relative './test_models'
 
 require 'coalesce'

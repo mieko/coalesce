@@ -41,12 +41,6 @@ class CombinersTest < MiniTest::Unit::TestCase
   def test_hash_merge
     left  = {name: 'Mike', age: 91, pet: 'Tucson'}
     right = {name: 'Bob',  age: 19, car: 'Dodge' }
-    result = Combiner.hash_merge([left, right])
-
-    assert_equal 'Mike',   result[:name]
-    assert_equal 91,       result[:age]
-    assert_equal 'Tucson', result[:pet]
-    assert_equal 'Dodge',  result[:car]
 
     result = Combiner.hash_merge([left, right], method: :merge)
     assert_equal 'Bob',    result[:name]
