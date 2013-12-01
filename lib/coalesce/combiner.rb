@@ -9,6 +9,20 @@ module Coalesce
 
       # default to the block if given, or :array
       @with = with || block || :array
+
+      # From here on out, we convert @with to something callable.
+      if @with.is_a?(Symbol)
+        unless self.class.respond_to?(@with)
+          fail NoMethodError, "invalid combiner name: #{@with.inspect}"
+        end
+
+        @with = self.class.method(@with)
+      else
+        unless @with.respond_to?(:call)
+          fail ArgumentError, ":with must be a combiner name or callable"
+        end
+      end
+
       @attribute, @options, @compact = attribute, options, compact
     end
 
@@ -19,9 +33,8 @@ module Coalesce
     end
 
     def call(values)
-      callable = with.respond_to?(:call) ? with : self.class.method(with)
       values = values.compact if compact
-      options.empty? ? callable.call(values) : callable.call(values, **options)
+      options.empty? ? with.call(values) : with.call(values, **options)
     end
 
     # The simplest combiner: adds all values to an array.
