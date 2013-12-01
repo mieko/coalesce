@@ -3,8 +3,13 @@ require 'ostruct'
 # Give us 1.minute for convenience without brining in ActiveSupport
 unless 1.respond_to?(:minute)
   class Numeric
+    def second
+      self
+    end
+    alias_method :seconds, :second
+
     def minute
-      self * 60
+      second * 60
     end
     alias_method :minutes, :minute
 
