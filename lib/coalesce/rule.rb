@@ -12,7 +12,16 @@ module Coalesce
       @locks      = []
       @unlocks    = []
       @combiners  = []
+      @sequential = true
       instance_exec(&block)
+    end
+
+    def sequential?
+      @sequential
+    end
+
+    def random_access!
+      @sequential = false
     end
 
     # Adds a custom predicate rule, which gets passed |block, candidate|.
@@ -175,8 +184,13 @@ module Coalesce
     def initialize(name, &block)
       dsl = RuleDSL.new(name, &block)
 
-      @name, @predicates, @locks, @unlocks, @combiners =
-        dsl.name, dsl.predicates, dsl.locks, dsl.unlocks, dsl.combiners
+      @name, @predicates, @locks, @unlocks, @combiners, @sequential =
+        dsl.name, dsl.predicates, dsl.locks, dsl.unlocks, dsl.combiners,
+        dsl.sequential?
+    end
+
+    def sequential?
+      @sequential
     end
 
     def matches?(batch, candidate)
